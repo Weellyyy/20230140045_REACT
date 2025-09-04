@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 // Objek untuk menampung semua gaya CSS
 const styles = {
@@ -66,14 +66,17 @@ const styles = {
 };
 
 
+
 function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isHovered, setIsHovered] = useState(false); // State untuk hover effect
+    const [errorMsg, setErrorMsg] = useState("");
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setErrorMsg("");
         try {
             const response = await axios.post(
                 "http://localhost:5000/api/auth/login",
@@ -85,8 +88,11 @@ function LoginPage() {
             alert("Login successful!");
             navigate("/");
         } catch (error) {
-            console.error("login gagal:", error.response?.data || "Server error");
-            alert("login gagal. periksa kembali password anda");
+            let msg = "login gagal. periksa kembali password anda";
+            if (error.response && error.response.data && (error.response.data.message || error.response.data.msg)) {
+                msg = error.response.data.message || error.response.data.msg;
+            }
+            setErrorMsg(msg);
         }
     };
 
@@ -120,6 +126,9 @@ function LoginPage() {
                         required
                     />
                 </div>
+                {errorMsg && (
+                    <div style={{ color: 'red', marginBottom: 10 }}>{errorMsg}</div>
+                )}
                 <button
                     type="submit"
                     style={buttonStyle}
@@ -129,6 +138,10 @@ function LoginPage() {
                     Login
                 </button>
             </form>
+            <div style={{ marginTop: 20 }}>
+                <span>rung ndue akun mas? </span>
+                <Link to="/register" style={{ color: '#61dafb', textDecoration: 'underline' }}>Register</Link>
+            </div>
         </div>
     );
 }
